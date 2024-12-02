@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+<<<<<<<< Updated upstream:Assets/Marcel/Scripts/FSM/State Machine/BaseStateMachine_M.cs.meta
+guid: 93885bb64df999448b4b40fa72c00a90
+========
+guid: 59f9823ef6bbaeb49a5720e58c4b7ed6
+>>>>>>>> Stashed changes:Assets/Marcel/Scripts/FSM/State Machine/M_Transition.cs.meta
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

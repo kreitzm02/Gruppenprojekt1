@@ -41,61 +41,61 @@ public class MeleeStateMachine : BaseStateMachine
         MeleeRetreatState retreatState = new(this, "Walking_Backwards");
         MeleeDeathState deathState = new(this, "Death_C_Skeletons");
 
-        statesDict.Add(idleState, new List<Transition>
+        statesDict.Add(idleState, new List<M_Transition>
         {
-            new Transition(walkState, () => idleState.pastTime > idleState.randomTime), // enemy is not visible
-            new Transition(chasePlayerState, () => targetedEnemy != null && attackedEnemy == null), // enemy is visible
+            new M_Transition(walkState, () => idleState.pastTime > idleState.randomTime), // enemy is not visible
+            new M_Transition(chasePlayerState, () => targetedEnemy != null && attackedEnemy == null), // enemy is visible
         });
-        statesDict.Add(walkState, new List<Transition>
+        statesDict.Add(walkState, new List<M_Transition>
         {
-            new Transition(idleState, () => Vector3.Distance(transform.position, walkState.targetPoint) < walkState.targetThreshold), // target point reached and enemy not visible
-            new Transition(chasePlayerState, () => targetedEnemy != null && attackedEnemy == null), // enemy is visible
+            new M_Transition(idleState, () => Vector3.Distance(transform.position, walkState.targetPoint) < walkState.targetThreshold), // target point reached and enemy not visible
+            new M_Transition(chasePlayerState, () => targetedEnemy != null && attackedEnemy == null), // enemy is visible
         });
-        statesDict.Add(chasePlayerState, new List<Transition>
+        statesDict.Add(chasePlayerState, new List<M_Transition>
         {
-            new Transition(attackState, () => attackedEnemy != null), // enemy is in attack range
-            new Transition(lastSeenPosState, () => attackedEnemy == null && targetedEnemy == null), // enemy is not visible
+            new M_Transition(attackState, () => attackedEnemy != null), // enemy is in attack range
+            new M_Transition(lastSeenPosState, () => attackedEnemy == null && targetedEnemy == null), // enemy is not visible
         });
-        statesDict.Add(attackState, new List<Transition>
+        statesDict.Add(attackState, new List<M_Transition>
         {
-            new Transition (idleState, () => attackState.attackFinished && attackState.enemyKilled), // enemy is dead
-            new Transition(retreatState, () => UnityEngine.Random.Range(1, 1000) == 2), // randomly starting heavy attack
-            new Transition(chasePlayerState, () => attackedEnemy == null && targetedEnemy != null && attackState.attackFinished), // enemy is visible but not in attack range
-            new Transition(idleState, () => attackedEnemy == null && targetedEnemy == null && attackState.attackFinished), // enemy is not visible
+            new M_Transition (idleState, () => attackState.attackFinished && attackState.enemyKilled), // enemy is dead
+            new M_Transition(retreatState, () => UnityEngine.Random.Range(1, 1000) == 2), // randomly starting heavy attack
+            new M_Transition(chasePlayerState, () => attackedEnemy == null && targetedEnemy != null && attackState.attackFinished), // enemy is visible but not in attack range
+            new M_Transition(idleState, () => attackedEnemy == null && targetedEnemy == null && attackState.attackFinished), // enemy is not visible
         });
-        statesDict.Add(lastSeenPosState, new List<Transition>
+        statesDict.Add(lastSeenPosState, new List<M_Transition>
         {
-            new Transition(searchPlayerState, () => Vector3.Distance(transform.position, lastSeenPosState.targetPoint) < lastSeenPosState.targetThreshold), // target point reached
-            new Transition(chasePlayerState, () => targetedEnemy != null), // enemy is visible
+            new M_Transition(searchPlayerState, () => Vector3.Distance(transform.position, lastSeenPosState.targetPoint) < lastSeenPosState.targetThreshold), // target point reached
+            new M_Transition(chasePlayerState, () => targetedEnemy != null), // enemy is visible
         });
-        statesDict.Add(searchPlayerState, new List<Transition>
+        statesDict.Add(searchPlayerState, new List<M_Transition>
         {
-            new Transition(chasePlayerState, () => targetedEnemy != null), // enemy is visible after scouting
-            new Transition(idleState, () => targetedEnemy == null && searchPlayerState.rotationCounter == 2), // enemy is not visible after scouting
+            new M_Transition(chasePlayerState, () => targetedEnemy != null), // enemy is visible after scouting
+            new M_Transition(idleState, () => targetedEnemy == null && searchPlayerState.rotationCounter == 2), // enemy is not visible after scouting
         });
-        statesDict.Add(runTowardsPlayerState, new List<Transition>
+        statesDict.Add(runTowardsPlayerState, new List<M_Transition>
         {
-            new Transition(heavyAttackState, () => Vector3.Distance(transform.position, runTowardsPlayerState.targetPoint) < runTowardsPlayerState.targetThreshold), // reached enemy position
-            new Transition(lastSeenPosState, () => targetedEnemy == null) // enemy is not visible
+            new M_Transition(heavyAttackState, () => Vector3.Distance(transform.position, runTowardsPlayerState.targetPoint) < runTowardsPlayerState.targetThreshold), // reached enemy position
+            new M_Transition(lastSeenPosState, () => targetedEnemy == null) // enemy is not visible
         });
-        statesDict.Add(retreatState, new List<Transition>
+        statesDict.Add(retreatState, new List<M_Transition>
         {
-            new Transition(lastSeenPosState, () => targetedEnemy == null), // enemy is not visible
-            new Transition(runTowardsPlayerState, () => Vector3.Distance(transform.position, retreatState.targetedEnemy.position) >= retreatState.moveDistance), // enemy is visible
+            new M_Transition(lastSeenPosState, () => targetedEnemy == null), // enemy is not visible
+            new M_Transition(runTowardsPlayerState, () => Vector3.Distance(transform.position, retreatState.targetedEnemy.position) >= retreatState.moveDistance), // enemy is visible
         });
-        statesDict.Add(deathState, new List<Transition>
+        statesDict.Add(deathState, new List<M_Transition>
         {
             // object will be destroyed after death state is called, so no transitions here.
         });
-        statesDict.Add(heavyAttackState, new List<Transition>
+        statesDict.Add(heavyAttackState, new List<M_Transition>
         {
             // this state is just the attack state but with other transition conditions and another animations.
-            new Transition (idleState, () => heavyAttackState.attackFinished && heavyAttackState.enemyKilled), // enemy is dead
-            new Transition(idleState, () => targetedEnemy == null && attackedEnemy == null && heavyAttackState.attackFinished), // enemy is not visible
-            new Transition(chasePlayerState, () => heavyAttackState.attackFinished), // enemy is visible - but not in attack range
+            new M_Transition (idleState, () => heavyAttackState.attackFinished && heavyAttackState.enemyKilled), // enemy is dead
+            new M_Transition(idleState, () => targetedEnemy == null && attackedEnemy == null && heavyAttackState.attackFinished), // enemy is not visible
+            new M_Transition(chasePlayerState, () => heavyAttackState.attackFinished), // enemy is visible - but not in attack range
         });
 
-        anyStateTransitions.Add(new Transition(deathState, () => killable.CheckDeathCondition() == true && currentState != deathState));
+        anyStateTransitions.Add(new M_Transition(deathState, () => killable.CheckDeathCondition() == true && currentState != deathState));
 
 
         SetState(idleState);
