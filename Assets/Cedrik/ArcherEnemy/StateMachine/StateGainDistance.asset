@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 015403eb548c38e43b3de892d59d7781, type: 3}
+  m_Name: StateGainDistance
+  m_EditorClassIdentifier: 
+  speed: 6
+  rotationSpeed: 5
+  layerToDetect:
+    serializedVersion: 2
+    m_Bits: 64
+  rangeCondition: {fileID: 11400000, guid: 2a25b26c20bc71346887347303537132, type: 2}

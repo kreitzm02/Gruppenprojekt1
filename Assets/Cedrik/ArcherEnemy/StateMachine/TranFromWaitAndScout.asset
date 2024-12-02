@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5ef89a35cbc7714db677e93c55f17c5, type: 3}
+  m_Name: TranFromWaitAndScout
+  m_EditorClassIdentifier: 
+  originState: {fileID: 11400000, guid: 874eadcf3c8b7cd439eef61bbcb24d4a, type: 2}
+  targetStateWithCond:
+  - targetState: {fileID: 11400000, guid: 69f9eb81c4e2edd4f8c42350cde01bcf, type: 2}
+    targetCondition: {fileID: 11400000, guid: ec2db3ad443c9dc40b65d2513bfe60de, type: 2}
+  - targetState: {fileID: 11400000, guid: f06ee4fb03c21a847ab37351f77aaea3, type: 2}
+    targetCondition: {fileID: 11400000, guid: 051dfc65202d98c42b93323ab640729b, type: 2}

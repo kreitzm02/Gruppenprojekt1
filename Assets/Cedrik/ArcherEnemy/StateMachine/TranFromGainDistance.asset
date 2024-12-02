@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5ef89a35cbc7714db677e93c55f17c5, type: 3}
+  m_Name: TranFromGainDistance
+  m_EditorClassIdentifier: 
+  originState: {fileID: 11400000, guid: eb2fc5a31bb8c2841b8fd8d471ce57d6, type: 2}
+  targetStateWithCond:
+  - targetState: {fileID: 11400000, guid: ceea72c6e4e2b874da73666356730f35, type: 2}
+    targetCondition: {fileID: 11400000, guid: fb79311d550e5de41971b7ab2e122914, type: 2}
