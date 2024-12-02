@@ -21,6 +21,16 @@ public class MoveToSpawnCedrik : BaseStateCedrik
     [SerializeField]
     OnWaypointConditionCedrik onWaypointCondition;
 
+    private void OnEnable()
+    {
+        ResetInitialize();
+    }
+
+    private void ResetInitialize()
+    {
+        initialized = false;
+    }
+
     public override void Initialize(GameObject _thisObject)
     {
         if (!initialized)

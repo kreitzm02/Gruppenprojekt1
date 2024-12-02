@@ -6,6 +6,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "StateMachine/ArcherStates/RandomMove")]
 public class RandomMoveCedrik : BaseStateCedrik
 {
+    [SerializeField]
     private bool initialized = false;
     private Rigidbody thisRigidbody;
     private GameObject thisGameObject;
@@ -27,6 +28,16 @@ public class RandomMoveCedrik : BaseStateCedrik
 
     [SerializeField]
     OnWaypointConditionCedrik onWaypointCondition;
+
+    private void OnEnable()
+    {
+        ResetInitialize();
+    }
+
+    private void ResetInitialize()
+    {
+        initialized = false;
+    }
 
     public override void Initialize(GameObject _thisObject)
     {
