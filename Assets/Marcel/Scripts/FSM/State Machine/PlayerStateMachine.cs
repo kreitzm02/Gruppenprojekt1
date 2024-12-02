@@ -31,44 +31,44 @@ public class PlayerStateMachine : BaseStateMachine
         MeleeDeathState deathState = new(this, "Death_A");
         DodgeState dodgeState = new(this, "Dodge_Forward", "Dodge_Backward", "Dodge_Left", "Dodge_Right");
 
-        statesDict.Add(idleState, new List<Transition>
+        statesDict.Add(idleState, new List<M_Transition>
         {
-            new Transition(walkPointState, () => inputHandler.IsClick()),
-            new Transition(walkDirectionState, () => inputHandler.IsHold()),
-            new Transition(walkTargetState, () => false),
-            new Transition(dodgeState, () => Input.GetMouseButton(0) && Input.GetKeyDown(KeyCode.LeftControl)),
+            new M_Transition(walkPointState, () => inputHandler.IsClick()),
+            new M_Transition(walkDirectionState, () => inputHandler.IsHold()),
+            new M_Transition(walkTargetState, () => false),
+            new M_Transition(dodgeState, () => Input.GetMouseButton(0) && Input.GetKeyDown(KeyCode.LeftControl)),
         });
-        statesDict.Add(walkDirectionState, new List<Transition>
+        statesDict.Add(walkDirectionState, new List<M_Transition>
         {
-            new Transition(idleState, () => !Input.GetMouseButton(0)),
-            new Transition(dodgeState, () => Input.GetKeyDown(KeyCode.LeftControl)),
+            new M_Transition(idleState, () => !Input.GetMouseButton(0)),
+            new M_Transition(dodgeState, () => Input.GetKeyDown(KeyCode.LeftControl)),
         });
-        statesDict.Add(walkPointState, new List<Transition>
+        statesDict.Add(walkPointState, new List<M_Transition>
         {
-            new Transition(idleState, () => Vector3.Distance(transform.position, walkPointState.targetPosition) < walkPointState.targetThreshold),
-            new Transition(idleState, () => Input.GetMouseButton(1)),
-            new Transition(walkPointState, () => inputHandler.IsClick()),
-            new Transition(walkDirectionState, () => inputHandler.IsHold()),
-            new Transition(dodgeState, () => Input.GetMouseButton(0) && Input.GetKeyDown(KeyCode.LeftControl)),
-            new Transition(walkTargetState, () => false),
+            new M_Transition(idleState, () => Vector3.Distance(transform.position, walkPointState.targetPosition) < walkPointState.targetThreshold),
+            new M_Transition(idleState, () => Input.GetMouseButton(1)),
+            new M_Transition(walkPointState, () => inputHandler.IsClick()),
+            new M_Transition(walkDirectionState, () => inputHandler.IsHold()),
+            new M_Transition(dodgeState, () => Input.GetMouseButton(0) && Input.GetKeyDown(KeyCode.LeftControl)),
+            new M_Transition(walkTargetState, () => false),
         });
-        statesDict.Add(walkTargetState, new List<Transition> // TODO
+        statesDict.Add(walkTargetState, new List<M_Transition> // TODO
         {
-            new Transition(idleState, () => Vector3.Distance(transform.position, walkTargetState.targetPoint) < walkPointState.targetThreshold),
-            new Transition(idleState, () => Input.GetMouseButton(1)),
-            new Transition(walkPointState, () => inputHandler.IsClick()),
-            new Transition(walkDirectionState, () => inputHandler.IsHold()),
-            new Transition(dodgeState, () => Input.GetMouseButton(0) && Input.GetKeyDown(KeyCode.LeftControl)),
+            new M_Transition(idleState, () => Vector3.Distance(transform.position, walkTargetState.targetPoint) < walkPointState.targetThreshold),
+            new M_Transition(idleState, () => Input.GetMouseButton(1)),
+            new M_Transition(walkPointState, () => inputHandler.IsClick()),
+            new M_Transition(walkDirectionState, () => inputHandler.IsHold()),
+            new M_Transition(dodgeState, () => Input.GetMouseButton(0) && Input.GetKeyDown(KeyCode.LeftControl)),
         });
-        statesDict.Add(dodgeState, new List<Transition>
+        statesDict.Add(dodgeState, new List<M_Transition>
         {
-            new Transition(walkDirectionState, () => Vector3.Distance(transform.position, dodgeState.originalPosition) > dodgeState.targetDistance),
+            new M_Transition(walkDirectionState, () => Vector3.Distance(transform.position, dodgeState.originalPosition) > dodgeState.targetDistance),
         });
-        statesDict.Add(deathState, new List<Transition>
+        statesDict.Add(deathState, new List<M_Transition>
         {
         });
 
-        anyStateTransitions.Add(new Transition(deathState, () => killable.CheckDeathCondition() == true && currentState != deathState));
+        anyStateTransitions.Add(new M_Transition(deathState, () => killable.CheckDeathCondition() == true && currentState != deathState));
 
         SetState(idleState);
     }
