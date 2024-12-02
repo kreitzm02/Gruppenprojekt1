@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e50cbbb935c1086419f3808a2b89f986, type: 3}
+  m_Name: StateRandomMove
+  m_EditorClassIdentifier: 
+  minMoveRange: 2
+  maxMoveRange: 5
+  speed: 4
+  rotationSpeed: 5
+  maxDistanceToSpawn: 15
+  onWaypointCondition: {fileID: 11400000, guid: 102994a6b4bca0c4399341f28505fa47, type: 2}
