@@ -8,15 +8,9 @@ using UnityEngine.EventSystems;
 public abstract class BaseStateMachine_M : MonoBehaviour
 {
     public Animator animator;
-<<<<<<< Updated upstream:Assets/Marcel/Scripts/FSM/State Machine/BaseStateMachine_M.cs
     protected BaseState_M currentState;
     protected Dictionary<BaseState_M, List<Transition_M>> statesDict = new();
     protected List<Transition_M> anyStateTransitions = new();
-=======
-    protected BaseState currentState;
-    protected Dictionary<BaseState, List<M_Transition>> statesDict = new();
-    protected List<M_Transition> anyStateTransitions = new();
->>>>>>> Stashed changes:Assets/Marcel/Scripts/FSM/State Machine/BaseStateMachine.cs
 
     protected virtual void Start()
     {
