@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DungeonGenerator_M : MonoBehaviour
@@ -7,12 +8,16 @@ public class DungeonGenerator_M : MonoBehaviour
     private int[,] dungeonGrid;
     [SerializeField, Range(25, 100)] private int gridLength;
     [SerializeField, Range(25, 100)] private int gridWidth;
-    [SerializeField, Range(1, 6)] private int roomAmount;
-    [SerializeField, Range(2, 4)] private int minRoomSize;
-    [SerializeField, Range(5, 7)] private int maxRoomSize;
+    [SerializeField, Range(1, 25)] private int roomAmount;
+    [SerializeField, Range(2, 7)] private int minRoomSize;
+    [SerializeField, Range(7, 20)] private int maxRoomSize;
+    [SerializeField, Range(1, 16)] private int unitSize;
+    [SerializeField, Range(0, 100)] private int variationRate;
+    [SerializeField] private List<GameObject> floorObjects;
     private void Start()
     {
         GenerateDungeon();
+        BuildDungeon();
     }
     private void GenerateDungeon()
     {
@@ -42,14 +47,47 @@ public class DungeonGenerator_M : MonoBehaviour
                 }
             }
         }
+        
+        // Displaying the generated grid in the Debug Log
+
+        //for (int i = 0; i < dungeonGrid.GetLength(0); i++)
+        //{
+        //    string row = "";
+        //    for (int j = 0; j < dungeonGrid.GetLength(1); j++)
+        //    {
+        //        row += dungeonGrid[i, j];
+        //    }
+        //    Debug.Log(row);
+        //}
+    }
+
+    private void BuildDungeon()
+    {
         for (int i = 0; i < dungeonGrid.GetLength(0); i++)
         {
-            string row = "";
             for (int j = 0; j < dungeonGrid.GetLength(1); j++)
             {
-                row += dungeonGrid[i, j];
+                Vector3 position = new Vector3(i * unitSize, 0, j * unitSize);
+                switch (dungeonGrid[i, j])
+                {
+                    case 0:
+                        break;
+                    case 1:
+                        int random = Random.Range(0, 101);
+                        if (random > variationRate)
+                        {
+                            Instantiate(floorObjects.ElementAt(0), position, Quaternion.identity);
+                        }
+                        else
+                        {
+                            int randomTile = Random.Range(1, 6);
+                            Instantiate(floorObjects.ElementAt(randomTile), position, Quaternion.identity);
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
-            Debug.Log(row);
         }
     }
 }
