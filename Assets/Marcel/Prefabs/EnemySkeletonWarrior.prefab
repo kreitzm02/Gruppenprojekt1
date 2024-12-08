@@ -135,9 +135,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6d0bd294b8c04cb459e4411e11bc3cb4, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2119505189364402514}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6d0bd294b8c04cb459e4411e11bc3cb4, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 4642303552466125942}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6d0bd294b8c04cb459e4411e11bc3cb4, type: 3}
       insertIndex: -1
@@ -148,31 +145,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6d0bd294b8c04cb459e4411e11bc3cb4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3696000444108846243}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6d0bd294b8c04cb459e4411e11bc3cb4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 706281329135916067}
   m_SourcePrefab: {fileID: 100100000, guid: 6d0bd294b8c04cb459e4411e11bc3cb4, type: 3}
 --- !u!1 &1930356124071184022 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 6d0bd294b8c04cb459e4411e11bc3cb4, type: 3}
   m_PrefabInstance: {fileID: 1588479271608679367}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2119505189364402514
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1930356124071184022}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db165d28bba0e1b43b804d76a70afa05, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 0}
-  viewDistance: 20.09
-  attackRange: 1
-  viewConeAngle: 80
-  targetedEnemy: {fileID: 0}
-  attackedEnemy: {fileID: 0}
-  lastSeenTargetPos: {x: 0, y: 0, z: 0}
 --- !u!65 &4642303552466125942
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -261,6 +242,25 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &706281329135916067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1930356124071184022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6415455dac137c849b0d60d93e072f05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 0}
+  viewDistance: 20
+  attackRange: 1
+  viewConeAngle: 80
+  targetedEnemy: {fileID: 0}
+  attackedEnemy: {fileID: 0}
+  lastSeenTargetPos: {x: 0, y: 0, z: 0}
 --- !u!4 &8715876816716641513 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7997947301047521070, guid: 6d0bd294b8c04cb459e4411e11bc3cb4, type: 3}
