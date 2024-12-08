@@ -547,6 +547,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemySkeletonWarrior
       objectReference: {fileID: 0}
+    - target: {fileID: 1930356124071184022, guid: 985022577e7eeb94fb12566fe6701890, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3696000444108846243, guid: 985022577e7eeb94fb12566fe6701890, type: 3}
       propertyPath: m_Controller
       value: 
@@ -729,6 +733,10 @@ PrefabInstance:
     - target: {fileID: 8349814040966181191, guid: 9d4eb10808d68724aab72cb27165820b, type: 3}
       propertyPath: m_Name
       value: PlayerBarbarian
+      objectReference: {fileID: 0}
+    - target: {fileID: 8349814040966181191, guid: 9d4eb10808d68724aab72cb27165820b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8695235976322870269, guid: 9d4eb10808d68724aab72cb27165820b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -925,7 +933,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridLength: 25
   gridWidth: 25
-  roomAmount: 1
+  roomAmount: 3
   minRoomSize: 2
   maxRoomSize: 5
 --- !u!4 &1821490545

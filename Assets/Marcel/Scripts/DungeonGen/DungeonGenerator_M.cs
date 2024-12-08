@@ -21,8 +21,8 @@ public class DungeonGenerator_M : MonoBehaviour
         {
             int roomLength = Random.Range(minRoomSize, maxRoomSize + 1);
             int roomWidth = Random.Range(minRoomSize, maxRoomSize + 1);
-            int roomX = Random.Range(0, gridLength + 1);
-            int roomY = Random.Range(0, gridWidth * 1);
+            int roomX = Random.Range(0, gridLength - roomLength);
+            int roomY = Random.Range(0, gridWidth - roomWidth);
             Vector3 roomOrigin = new Vector3(roomX, 0, roomY);
             for (int j = (int)roomOrigin.x; j < (int)roomOrigin.x + roomLength; j++)
             {
