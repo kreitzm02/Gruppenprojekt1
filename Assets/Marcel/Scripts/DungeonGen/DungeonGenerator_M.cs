@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ public class DungeonGenerator_M : MonoBehaviour
 {
     private int[,] dungeonGrid;
     private List<Vector2Int> roomCenters;
+    private List<(int x, int y, int length, int width)> rooms = new List<(int, int, int, int)>();
     [SerializeField, Range(25, 250)] private int gridLength;
     [SerializeField, Range(25, 250)] private int gridWidth;
     [SerializeField, Range(1, 75)] private int roomAmount;
@@ -17,14 +19,22 @@ public class DungeonGenerator_M : MonoBehaviour
     [SerializeField, Range(0, 100)] private int variationRate;
     [SerializeField] private List<GameObject> floorObjects;
     [SerializeField] private List<GameObject> wallObjects;
+    [SerializeField] private List<GameObject> decorationObjects;
+    [SerializeField] private GameObject wallCorner;
+    [SerializeField] private GameObject voidObject;
+    [SerializeField] private GameObject doorObject;
+    [SerializeField] private bool allowOverlapingRooms;
+    [SerializeField] private float wallOffset;
     private void Start()
     {
-        GenerateDungeon();
+        GenerateRooms();
         ConnectRooms();
-        BuildDungeon();
-        GenerateWalls();
+        BuildFloor();
+        BuildWalls();
+        BuildDoors();
+        //BuildDecoration();
     }
-    private void GenerateDungeon()
+    private void GenerateRooms()
     {
         roomCenters = new List<Vector2Int>();
         dungeonGrid = new int[gridLength, gridWidth];
@@ -32,20 +42,39 @@ public class DungeonGenerator_M : MonoBehaviour
         {
             int roomLength = Random.Range(minRoomSize, maxRoomSize + 1);
             int roomWidth = Random.Range(minRoomSize, maxRoomSize + 1);
-            int roomX = Random.Range(0, gridLength - roomLength);
-            int roomY = Random.Range(0, gridWidth - roomWidth);
+            int roomX = Random.Range(1, gridLength - roomLength - 1);
+            int roomY = Random.Range(1, gridWidth - roomWidth - 1);
             Vector3 roomOrigin = new Vector3(roomX, 0, roomY);
-            for (int j = (int)roomOrigin.x; j < (int)roomOrigin.x + roomLength; j++)
+            bool overlaps = false;
+            foreach (var room in rooms)
             {
-                for (int k = (int)roomOrigin.z; k < (int)roomOrigin.z + roomWidth; k++)
+                if (IsOverlapping(roomX, roomY, roomLength, roomWidth, room.x, room.y, room.length, room.width))
                 {
-                    dungeonGrid[j, k] = 1;
+                    overlaps = true;
+                    break;
                 }
             }
-            int centerX = roomX + roomLength / 2;
-            int centerY = roomY + roomWidth / 2;
-            roomCenters.Add(new Vector2Int(centerX, centerY));
+
+            if (!overlaps || allowOverlapingRooms)
+            {
+                rooms.Add((roomX, roomY, roomLength, roomWidth));
+                for (int j = (int)roomOrigin.x; j < (int)roomOrigin.x + roomLength; j++)
+                {
+                    for (int k = (int)roomOrigin.z; k < (int)roomOrigin.z + roomWidth; k++)
+                    {
+                        dungeonGrid[j, k] = 1;
+                    }
+                }
+                int centerX = roomX + roomLength / 2;
+                int centerY = roomY + roomWidth / 2;
+                roomCenters.Add(new Vector2Int(centerX, centerY));
+            }
         }
+    }
+
+    private bool IsOverlapping(int _x1, int _y1, int _length1, int _width1, int _x2, int _y2, int _length2, int _width2)
+    {
+        return !(_x1 + _length1 < _x2 || _x2 + _length2 < _x1 || _y1 + _width1 < _y2 || _y2 + _width2 < _y1);
     }
 
     private void ConnectRooms()
@@ -132,7 +161,7 @@ public class DungeonGenerator_M : MonoBehaviour
         }
     }
 
-    private void GenerateWalls()
+    private void BuildWalls()
     {
         for (int i = 0; i < dungeonGrid.GetLength(0); i++)
         {
@@ -140,31 +169,59 @@ public class DungeonGenerator_M : MonoBehaviour
             {
                 if (dungeonGrid[i, j] == 1)
                 {
+                    int random = Random.Range(0, wallObjects.Count);
                     try
                     {
+                        // walls
                         if (dungeonGrid[i + 1, j] == 0)
                         {
-                            Vector3 position = new Vector3(((i + 1) * unitSize) - 1.5f, 0, j * unitSize);
-                            Quaternion rotation = Quaternion.Euler(0, 90, 0);
-                            Instantiate(wallObjects.ElementAt(0), position, rotation);
+                            Vector3 position = new Vector3(((i + 1) * unitSize) - wallOffset, 0, j * unitSize);
+                            Quaternion rotation = Quaternion.Euler(0, -90, 0);
+                            Instantiate(wallObjects.ElementAt(random), position, rotation);
                         }
                         if (dungeonGrid[i - 1, j] == 0)
                         {
-                            Vector3 position = new Vector3(((i - 1) * unitSize) + 1.5f, 0, j * unitSize);
-                            Quaternion rotation = Quaternion.Euler(0, -90, 0);
-                            Instantiate(wallObjects.ElementAt(0), position, rotation);
+                            Vector3 position = new Vector3(((i - 1) * unitSize) + wallOffset, 0, j * unitSize);
+                            Quaternion rotation = Quaternion.Euler(0, 90, 0);
+                            Instantiate(wallObjects.ElementAt(random), position, rotation);
                         }
                         if (dungeonGrid[i, j + 1] == 0)
                         {
-                            Vector3 position = new Vector3(i * unitSize, 0, ((j + 1) * unitSize) - 1.5f);
-                            Quaternion rotation = Quaternion.Euler(0, 0, 0);
-                            Instantiate(wallObjects.ElementAt(0), position, rotation);
+                            Vector3 position = new Vector3(i * unitSize, 0, ((j + 1) * unitSize) - wallOffset);
+                            Quaternion rotation = Quaternion.Euler(0, 180, 0);
+                            Instantiate(wallObjects.ElementAt(random), position, rotation);
                         }
                         if (dungeonGrid[i, j - 1] == 0)
                         {
-                            Vector3 position = new Vector3(i * unitSize, 0, ((j - 1) * unitSize) + 1.5f);
+                            Vector3 position = new Vector3(i * unitSize, 0, ((j - 1) * unitSize) + wallOffset);
+                            Quaternion rotation = Quaternion.Euler(0, 0, 0);
+                            Instantiate(wallObjects.ElementAt(random), position, rotation);
+                        }
+
+                        // corner walls
+                        if (dungeonGrid[i + 1, j - 1] == 0 && dungeonGrid[i + 1, j] == 0 && dungeonGrid[i, j - 1] == 0)
+                        {
+                            Vector3 position = new Vector3(((i + 1)* unitSize) - wallOffset, 0, ((j - 1) * unitSize) + wallOffset);
+                            Quaternion rotation = Quaternion.Euler(0, -90, 0);
+                            Instantiate(wallCorner, position, rotation);
+                        }
+                        if (dungeonGrid[i + 1, j + 1] == 0 && dungeonGrid[i + 1, j] == 0 && dungeonGrid[i, j + 1] == 0)
+                        {
+                            Vector3 position = new Vector3(((i + 1) * unitSize) - wallOffset, 0, ((j + 1) * unitSize) - wallOffset);
                             Quaternion rotation = Quaternion.Euler(0, 180, 0);
-                            Instantiate(wallObjects.ElementAt(0), position, rotation);
+                            Instantiate(wallCorner, position, rotation);
+                        }
+                        if (dungeonGrid[i - 1, j + 1] == 0 && dungeonGrid[i - 1, j] == 0 && dungeonGrid[i, j + 1] == 0)
+                        {
+                            Vector3 position = new Vector3(((i - 1) * unitSize) + wallOffset, 0, ((j + 1) * unitSize) - wallOffset);
+                            Quaternion rotation = Quaternion.Euler(0, 90, 0);
+                            Instantiate(wallCorner, position, rotation);
+                        }
+                        if (dungeonGrid[i - 1, j - 1] == 0 && dungeonGrid[i - 1, j] == 0 && dungeonGrid[i, j - 1] == 0)
+                        {
+                            Vector3 position = new Vector3(((i - 1) * unitSize) + wallOffset, 0, ((j - 1) * unitSize) + wallOffset);
+                            Quaternion rotation = Quaternion.Euler(0, 0, 0);
+                            Instantiate(wallCorner, position, rotation);
                         }
                     }
                     catch
@@ -176,7 +233,93 @@ public class DungeonGenerator_M : MonoBehaviour
         }
     }
 
-    private void BuildDungeon()
+    private void BuildDecoration()
+    {
+        for (int i = 0; i < dungeonGrid.GetLength(0); i++)
+        {
+            for (int j = 0; j < dungeonGrid.GetLength(1); j++)
+            {
+                try
+                {
+                    int random = Random.Range(1, 101);
+                    if (random > 11 || dungeonGrid[i, j] != 1)
+                        continue;
+                    random = Random.Range(0, decorationObjects.Count);
+                    if (dungeonGrid[i - 1, j] == 0 && dungeonGrid[i - 1, j - 1] == 0 && dungeonGrid[i - 1, j + 1] == 0)
+                    {
+                        Vector3 position = new Vector3(((i + 1) * unitSize) - wallOffset, 0, j * unitSize);
+                        Quaternion rotation = Quaternion.Euler(0, 0, 0);
+                        Instantiate(decorationObjects.ElementAt(random), position, rotation);
+                    }
+                    if (dungeonGrid[i + 1, j] == 0 && dungeonGrid[i + 1, j - 1] == 0 && dungeonGrid[i + 1, j + 1] == 0)
+                    {
+                        Vector3 position = new Vector3(((i + 1) * unitSize) - wallOffset, 0, j * unitSize);
+                        Quaternion rotation = Quaternion.Euler(0, 0, 0);
+                        Instantiate(decorationObjects.ElementAt(random), position, rotation);
+                    }
+                    if (dungeonGrid[i, j - 1] == 0 && dungeonGrid[i + 1, j - 1] == 0 && dungeonGrid[i - 1, j - 1] == 0)
+                    {
+                        Vector3 position = new Vector3(((i + 1) * unitSize) - wallOffset, 0, j * unitSize);
+                        Quaternion rotation = Quaternion.Euler(0, 0, 0);
+                        Instantiate(decorationObjects.ElementAt(random), position, rotation);
+                    }
+                    if (dungeonGrid[i, j + 1] == 0 && dungeonGrid[i + 1, j + 1] == 0 && dungeonGrid[i - 1, j + 1] == 0)
+                    {
+                        Vector3 position = new Vector3(((i + 1) * unitSize) - wallOffset, 0, j * unitSize);
+                        Quaternion rotation = Quaternion.Euler(0, 0, 0);
+                        Instantiate(decorationObjects.ElementAt(random), position, rotation);
+                    }
+                }
+                catch
+                {
+
+                }
+            }
+        }
+    }
+
+    private void BuildDoors()
+    {
+        for (int i = 0; i < dungeonGrid.GetLength(0); i++)
+        {
+            for (int j = 0; j < dungeonGrid.GetLength(1); j++)
+            {
+                try
+                {
+                    if (dungeonGrid[i + 1, j] == 1 && dungeonGrid[i + 1, j - 1] == 0 && dungeonGrid[i + 1, j + 1] == 0 && (dungeonGrid[i, j - 1] == 1 || dungeonGrid[i, j + 1] == 1) && dungeonGrid[i - 1, j] == 1)
+                    {
+                        Vector3 position = new Vector3(((i + 1) * unitSize) - wallOffset , 0, j * unitSize);
+                        Quaternion rotation = Quaternion.Euler(0, 90, 0);
+                        Instantiate(doorObject, position, rotation);
+                    }
+                    if (dungeonGrid[i - 1, j] == 1 && dungeonGrid[i - 1, j - 1] == 0 && dungeonGrid[i - 1, j + 1] == 0 && (dungeonGrid[i, j - 1] == 1 || dungeonGrid[i, j + 1] == 1) && dungeonGrid[i + 1, j] == 1)
+                    {
+                        Vector3 position = new Vector3(((i - 1) * unitSize) + wallOffset, 0, j * unitSize);
+                        Quaternion rotation = Quaternion.Euler(0, 90, 0);
+                        Instantiate(doorObject, position, rotation);
+                    }
+                    if (dungeonGrid[i, j + 1] == 1 && dungeonGrid[i + 1, j + 1] == 0 && dungeonGrid[i - 1, j + 1] == 0 && (dungeonGrid[i - 1, j] == 1 || dungeonGrid[i + 1, j] == 1) && dungeonGrid[i, j - 1] == 1)
+                    {
+                        Vector3 position = new Vector3(i * unitSize, 0, ((j + 1) * unitSize) - wallOffset);
+                        Quaternion rotation = Quaternion.Euler(0, 0, 0);
+                        Instantiate(doorObject, position, rotation);
+                    }
+                    if (dungeonGrid[i, j - 1] == 1 && dungeonGrid[i - 1, j - 1] == 0 && dungeonGrid[i + 1, j - 1] == 0 && (dungeonGrid[i - 1, j] == 1 || dungeonGrid[i + 1, j] == 1) && dungeonGrid[i, j + 1] == 1)
+                    {
+                        Vector3 position = new Vector3(i * unitSize, 0, ((j - 1) * unitSize) + wallOffset);
+                        Quaternion rotation = Quaternion.Euler(0, 0, 0);
+                        Instantiate(doorObject, position, rotation);
+                    }
+                }
+                catch
+                {
+
+                }
+            }
+        }
+    }
+
+    private void BuildFloor()
     {
         for (int i = 0; i < dungeonGrid.GetLength(0); i++)
         {
@@ -185,7 +328,9 @@ public class DungeonGenerator_M : MonoBehaviour
                 Vector3 position = new Vector3(i * unitSize, 0, j * unitSize);
                 switch (dungeonGrid[i, j])
                 {
-                    case 0:
+                    case 0: // black plane will be placed to create a "void".
+                        position.y += unitSize * 0.85f;
+                        Instantiate(voidObject, position, Quaternion.identity);
                         break;
                     case 1:
                         int random = Random.Range(0, 101);
@@ -195,12 +340,18 @@ public class DungeonGenerator_M : MonoBehaviour
                         }
                         else
                         {
-                            int randomTile = Random.Range(1, 6);
-                            Instantiate(floorObjects.ElementAt(randomTile), position, Quaternion.identity);
+                            int randomTile = Random.Range(1, floorObjects.Count);
+                            Instantiate(floorObjects.ElementAt(randomTile), new Vector3(position.x - 1f, 0, position.z + 1f), Quaternion.identity);
+                            randomTile = Random.Range(1, floorObjects.Count);
+                            Instantiate(floorObjects.ElementAt(randomTile), new Vector3(position.x - 1f, 0, position.z - 1f), Quaternion.identity);
+                            randomTile = Random.Range(1, floorObjects.Count);
+                            Instantiate(floorObjects.ElementAt(randomTile), new Vector3(position.x + 1f, 0, position.z + 1f), Quaternion.identity);
+                            randomTile = Random.Range(1, floorObjects.Count);
+                            Instantiate(floorObjects.ElementAt(randomTile), new Vector3(position.x + 1f, 0, position.z - 1f), Quaternion.identity);
                         }
                         break;
                     default:
-                        break;
+                        goto case 0;
                 }
             }
         }
