@@ -15,7 +15,7 @@ public class MeleeRetreatState_M : BaseState_M
     public Transform targetedEnemy;
     private float movementSpeed = 5;
     private float rotationSpeed = 360;
-    public float moveDistance = 10;
+    public float moveDistance = 5;
     private float targetThreshold = 0.75f;
     private Vector3 direction;
     private Vector3 targetPoint;

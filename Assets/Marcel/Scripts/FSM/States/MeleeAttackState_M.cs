@@ -58,7 +58,7 @@ public class MeleeAttackState_M : BaseState_M
 
     public override void OnStateUpdate()
     {
-        weaponHitBox = new Vector3(sm.transform.position.x, sm.transform.position.y + 1, sm.transform.position.z) + sm.transform.forward * 0.5f;
+        weaponHitBox = new Vector3(sm.transform.position.x, sm.transform.position.y + 1f, sm.transform.position.z) + sm.transform.forward;
         animStateInfo = sm.animator.GetCurrentAnimatorStateInfo(0);
         float normalizedAnimTime = animStateInfo.normalizedTime % 1.0f;
         Debug.Log("Updating Attack State");
@@ -79,7 +79,7 @@ public class MeleeAttackState_M : BaseState_M
         {
             attackFinished = false;
         }
-        if (normalizedAnimTime >= 0.76f && !attackFinished && !damageGiven)
+        if (normalizedAnimTime >= 0.55f && !attackFinished && !damageGiven)
         {
             Collider[] collider = Physics.OverlapSphere(weaponHitBox, 0.4f);
             foreach (var col in collider)
@@ -87,6 +87,8 @@ public class MeleeAttackState_M : BaseState_M
                 if (col == enemyCollider)
                 {
                     targetDamageable.GainDamage(meleeSM.attackable.GetAttackDamage());
+                    Rigidbody targetRb = col.gameObject.GetComponent<Rigidbody>();
+                    targetRb.AddForce(direction * 5.0f, ForceMode.Impulse);
                     damageGiven = true;
                 }
             }

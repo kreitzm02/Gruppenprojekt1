@@ -35,6 +35,8 @@ public class MeleeDeathState_M : BaseState_M
         {
             foreach (Material mat in renderer.materials)
             {
+                mat.SetFloat("_Surface", 1f); 
+                mat.SetFloat("_Blend", 0f); 
                 mat.SetFloat("_Mode", 2);
                 mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
                 mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);

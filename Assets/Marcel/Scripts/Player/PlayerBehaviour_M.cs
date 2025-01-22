@@ -6,11 +6,28 @@ using UnityEngine;
 public class PlayerBehaviour_M : MonoBehaviour, IDamageable, IKillable, IAttackable, IInputHandler
 {
     public int healthPoints = 100;
-    public int attackDamage = 30;
-
+    public int unarmedAtkDamage = 8; // fists
+    public IWeapon currentWeapon;
     private float mouseDownTime;
     private float clickThreshold = 0.15f;
 
+    public void Update()
+    {
+        currentWeapon = GetComponentInChildren<IWeapon>();
+        if (currentWeapon == null)
+        {
+            Debug.Log("Current Weapon not found");
+        }
+    }
+
+    public string GetAttackAnimation()
+    {
+        if (currentWeapon != null)
+        {
+            return currentWeapon.GetWeaponAnimName();
+        }
+        else return "Unarmed_Melee_Attack_Punch_A";
+    }
     public bool CheckDeathCondition()
     {
         if (healthPoints == 0)
@@ -27,7 +44,9 @@ public class PlayerBehaviour_M : MonoBehaviour, IDamageable, IKillable, IAttacka
 
     public int GetAttackDamage()
     {
-        return attackDamage;
+        if (currentWeapon != null)
+            return currentWeapon.GetWeaponDamage();
+        else return unarmedAtkDamage;
     }
 
     public bool IsClick()

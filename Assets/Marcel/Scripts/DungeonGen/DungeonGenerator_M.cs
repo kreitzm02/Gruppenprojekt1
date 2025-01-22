@@ -16,6 +16,7 @@ public class DungeonGenerator_M : MonoBehaviour
     [SerializeField, Range(25, 250)] private int gridWidth;
     [SerializeField, Range(1, 16)] private int unitSize;
     [SerializeField] private GameObject voidObject;
+    [SerializeField] private GameObject player;
     [Header("Room Settings")]
     [SerializeField, Range(1, 75)] private int roomAmount;
     [SerializeField, Range(2, 7)] private int minRoomSize;
@@ -55,6 +56,7 @@ public class DungeonGenerator_M : MonoBehaviour
         BuildWalls();
         BuildDoors();
         BuildDecoration();
+        //PlacePlayer();
         //PrintDungeonDebug();
         foreach (var room in roomCenters)
         {
@@ -541,5 +543,10 @@ public class DungeonGenerator_M : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void PlacePlayer()
+    {
+        player.transform.position = new Vector3(startPoint.x * unitSize, 0, startPoint.y * unitSize);
     }
 }

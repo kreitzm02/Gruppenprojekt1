@@ -5,13 +5,22 @@ using UnityEngine;
 public class MeleeSkeletonBehaviour_M : MonoBehaviour, IDamageable, IKillable, ITargetDetectable, IAttackable
 {
     public int healthPoints = 100;
+    public int maxHealthPoints = 100;
     public int attackDamage = 15;
     public Transform targetedEnemy;
     public Transform attackedEnemy;
     public float viewDistance = 10;
     public float attackRange = 1;
     public float viewConeAngle = 80;
-
+    private HealthBar healthBar;
+    private void Start()
+    {
+        healthBar = GetComponentInChildren<HealthBar>();
+    }
+    private void Update()
+    {
+        healthBar.UpdateHealthBar(healthPoints, maxHealthPoints);
+    }
     public bool CheckDeathCondition()
     {
         if (healthPoints == 0)

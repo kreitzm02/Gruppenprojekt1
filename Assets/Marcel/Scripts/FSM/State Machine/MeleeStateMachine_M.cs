@@ -13,19 +13,20 @@ public class MeleeStateMachine_M : BaseStateMachine_M
     private ITargetDetectable targetDetectable;
     public IAttackable attackable;
 
-    public float viewDistance = 20;
-    public float attackRange = 1;
-    public float viewConeAngle = 80;
-
     public Transform targetedEnemy;
     public Transform attackedEnemy;
     public Vector3 lastSeenTargetPos;
+
+    private MeleeSkeletonBehaviour_M skeletonBehaviour;
+    private int previousHealthPoints;
 
     protected override void Start()
     {
         killable = this.GetComponent<IKillable>();
         targetDetectable = this.GetComponent<ITargetDetectable>();
         attackable = this.GetComponent<IAttackable>();
+        skeletonBehaviour = GetComponent<MeleeSkeletonBehaviour_M>();
+        previousHealthPoints = skeletonBehaviour.healthPoints;
         base.Start();
     }
     public override void SetupStates()
@@ -40,6 +41,7 @@ public class MeleeStateMachine_M : BaseStateMachine_M
         MeleeRunTowardsPlayerState_M runTowardsPlayerState = new(this, "Running_C");
         MeleeRetreatState_M retreatState = new(this, "Walking_Backwards");
         MeleeDeathState_M deathState = new(this, "Death_C_Skeletons");
+        HitState_M hitState = new(this, "Hit_B");
 
         statesDict.Add(idleState, new List<Transition_M>
         {
@@ -94,8 +96,13 @@ public class MeleeStateMachine_M : BaseStateMachine_M
             new Transition_M(idleState, () => targetedEnemy == null && attackedEnemy == null && heavyAttackState.attackFinished), // enemy is not visible
             new Transition_M(chasePlayerState, () => heavyAttackState.attackFinished), // enemy is visible - but not in attack range
         });
+        statesDict.Add(hitState, new List<Transition_M>
+        {
+            new Transition_M(idleState, () => hitState.animationComplete)
+        });
 
         anyStateTransitions.Add(new Transition_M(deathState, () => killable.CheckDeathCondition() == true && currentState != deathState));
+        anyStateTransitions.Add(new Transition_M(hitState, () => skeletonBehaviour.healthPoints < previousHealthPoints));
 
 
         SetState(idleState);
@@ -105,6 +112,7 @@ public class MeleeStateMachine_M : BaseStateMachine_M
         targetedEnemy = targetDetectable.DetectTargetVisibleRange();
         attackedEnemy = targetDetectable.DetectTargetAttackRange();
         base.Update();
+        previousHealthPoints = skeletonBehaviour.healthPoints;
     }
 }
 

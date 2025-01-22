@@ -9,11 +9,21 @@ public class PlayerStateMachine_M : BaseStateMachine_M
 {
     private IKillable killable;
     private IInputHandler inputHandler;
+    public IAttackable attackable;
+    public PlayerBehaviour_M playerBehaviour;
+    private int previousHealthPoints;
+    [SerializeField] private GameObject fakeThrowObject;
+    [SerializeField] private GameObject realThrowObject;
+    [SerializeField] private Transform handSlot;
+    [SerializeField] public float testing_NormalizedAttackAnimTime;
 
     protected override void Start()
     {
         killable = GetComponent<IKillable>();
         inputHandler = GetComponent<IInputHandler>();
+        attackable = GetComponent<IAttackable>();
+        playerBehaviour = GetComponent<PlayerBehaviour_M>();
+        previousHealthPoints = playerBehaviour.healthPoints;
         base.Start();
     }
 
@@ -21,6 +31,7 @@ public class PlayerStateMachine_M : BaseStateMachine_M
     {
         inputHandler.ButtonDownCheck();
         base.Update();
+        previousHealthPoints = playerBehaviour.healthPoints;
     }
     public override void SetupStates()
     {
@@ -30,6 +41,9 @@ public class PlayerStateMachine_M : BaseStateMachine_M
         WalkToTargetState_M walkTargetState = new(this, "Walking_A");
         MeleeDeathState_M deathState = new(this, "Death_A");
         DodgeState_M dodgeState = new(this, "Dodge_Forward", "Dodge_Backward", "Dodge_Left", "Dodge_Right");
+        //PlayerAttackState_M attackState = new(this);
+        HitState_M hitState = new(this, "Hit_B");
+        //ThrowingState_M throwingState = new(this, "Throw", fakeThrowObject, realThrowObject, handSlot);
 
         statesDict.Add(idleState, new List<Transition_M>
         {
@@ -67,9 +81,33 @@ public class PlayerStateMachine_M : BaseStateMachine_M
         statesDict.Add(deathState, new List<Transition_M>
         {
         });
+        //statesDict.Add(attackState, new List<Transition_M>
+        //{
+        //    new Transition_M(idleState, () => attackState.attackFinished),
+        //});
+        statesDict.Add(hitState, new List<Transition_M>
+        {
+            new Transition_M(idleState, () => hitState.animationComplete)
+        });
+        //statesDict.Add(throwingState, new List<Transition_M>
+        //{
+        //    new Transition_M(idleState, () => throwingState.stateCompleted), //test
+        //    new Transition_M(idleState, () => Input.GetKeyUp(KeyCode.Q) && throwingState.canBeCancelled)
+        //});
 
         anyStateTransitions.Add(new Transition_M(deathState, () => killable.CheckDeathCondition() == true && currentState != deathState));
+        //anyStateTransitions.Add(new Transition_M(attackState, () => Input.GetKeyDown(KeyCode.E) && currentState != attackState));
+        anyStateTransitions.Add(new Transition_M(hitState, () => playerBehaviour.healthPoints < previousHealthPoints));
+        //anyStateTransitions.Add(new Transition_M(throwingState, () => Input.GetKeyDown(KeyCode.Q))); //test
 
         SetState(idleState);
+    }
+
+    public BaseState_M GetCurrentState()
+    { return currentState; }
+
+    public void OverrideCurrentState(BaseState_M _state)
+    {
+        SetState(_state);
     }
 }
