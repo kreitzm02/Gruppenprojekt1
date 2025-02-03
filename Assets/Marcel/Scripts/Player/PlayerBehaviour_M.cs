@@ -10,6 +10,13 @@ public class PlayerBehaviour_M : MonoBehaviour, IDamageable, IKillable, IAttacka
     public IWeapon currentWeapon;
     private float mouseDownTime;
     private float clickThreshold = 0.15f;
+    private HealthBar healthBar;
+    public int maxHealthPoints = 100;
+
+    private void Start()
+    {
+        healthBar = GetComponentInChildren<HealthBar>();
+    }
 
     public void Update()
     {
@@ -18,6 +25,8 @@ public class PlayerBehaviour_M : MonoBehaviour, IDamageable, IKillable, IAttacka
         {
             Debug.Log("Current Weapon not found");
         }
+
+        healthBar.UpdateHealthBar(healthPoints, maxHealthPoints);
     }
 
     public string GetAttackAnimation()

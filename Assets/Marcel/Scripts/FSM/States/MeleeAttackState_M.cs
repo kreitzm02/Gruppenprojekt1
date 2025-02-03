@@ -35,7 +35,8 @@ public class MeleeAttackState_M : BaseState_M
 
     public override void OnStateEnter()
     {
-        sm.animator.CrossFade(animName, 0.1f);
+        sm.animator.CrossFade(animName, 0f);
+        sm.animator.speed = 1.5f;
         meleeSM = sm as MeleeStateMachine_M;
         targetedEnemy = meleeSM.attackedEnemy;
         Debug.Log("Entered Attack State");
@@ -54,6 +55,7 @@ public class MeleeAttackState_M : BaseState_M
     public override void OnStateExit()
     {
         Debug.Log("Left Attack State");
+        sm.animator.speed = 1f;
     }
 
     public override void OnStateUpdate()

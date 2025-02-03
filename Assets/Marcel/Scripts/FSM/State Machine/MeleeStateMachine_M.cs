@@ -42,6 +42,7 @@ public class MeleeStateMachine_M : BaseStateMachine_M
         MeleeRetreatState_M retreatState = new(this, "Walking_Backwards");
         MeleeDeathState_M deathState = new(this, "Death_C_Skeletons");
         HitState_M hitState = new(this, "Hit_B");
+        MeleeSmokeState_M smokeState = new(this, "Idle_Combat");
 
         statesDict.Add(idleState, new List<Transition_M>
         {
@@ -74,6 +75,7 @@ public class MeleeStateMachine_M : BaseStateMachine_M
         {
             new Transition_M(chasePlayerState, () => targetedEnemy != null), // enemy is visible after scouting
             new Transition_M(idleState, () => targetedEnemy == null && searchPlayerState.rotationCounter == 2), // enemy is not visible after scouting
+            new Transition_M(idleState, () => skeletonBehaviour.IsInsideSmoke == true)
         });
         statesDict.Add(runTowardsPlayerState, new List<Transition_M>
         {
@@ -100,6 +102,10 @@ public class MeleeStateMachine_M : BaseStateMachine_M
         {
             new Transition_M(idleState, () => hitState.animationComplete)
         });
+        statesDict.Add(smokeState, new List<Transition_M>
+        {
+            
+        });
 
         anyStateTransitions.Add(new Transition_M(deathState, () => killable.CheckDeathCondition() == true && currentState != deathState));
         anyStateTransitions.Add(new Transition_M(hitState, () => skeletonBehaviour.healthPoints < previousHealthPoints));
@@ -109,7 +115,15 @@ public class MeleeStateMachine_M : BaseStateMachine_M
     }
     protected override void Update()
     {
-        targetedEnemy = targetDetectable.DetectTargetVisibleRange();
+        if (targetDetectable.DetectTargetVisibleRange() != null)
+        {
+            targetedEnemy = targetDetectable.DetectTargetVisibleRange();
+        }
+        else
+        {
+            targetedEnemy = targetDetectable.DetectTargetNearRange();
+        }
+        //targetedEnemy = targetDetectable.DetectTargetVisibleRange();
         attackedEnemy = targetDetectable.DetectTargetAttackRange();
         base.Update();
         previousHealthPoints = skeletonBehaviour.healthPoints;

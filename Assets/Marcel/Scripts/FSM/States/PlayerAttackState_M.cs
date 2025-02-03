@@ -7,17 +7,27 @@ using UnityEngine;
 
 public class PlayerAttackState_M : BaseState_M
 {
-    string animName;
+    //Animation
+    private AnimatorStateInfo animStateInfo;
+    private string animName;
+    private float animSpeed = 1.5f; // attack duration is tied to the length of the animation 
+    private float animFinishedTime = 0.7f; // from 0 to 1 - the normalized time when the attack is considered finished and the state can be changed
+
+
     private Vector3 weaponHitBox;
+    private float weaponHitBoxSize = 1.1f;
+    private float hitBoxForwardOffset = 0.75f;
+    private float hitBoxYOffset = 1f;
     private Vector3 targetPosition;
+    private float targetKnockbackForce = 7.0f;
     private Ray mouseRay;
     private Vector3 direction;
     private Quaternion targetRotation;
     private float rotationSpeed = 1000f;
+
     private Transform targetedEnemy;
     private IDamageable targetDamageable;
     private IKillable targetKillable;
-    private AnimatorStateInfo animStateInfo;
     private PlayerAttackStateMachine_M playerSM;
     public bool attackFinished = false;
     private bool damageGiven = false;
@@ -34,6 +44,7 @@ public class PlayerAttackState_M : BaseState_M
         sm.animator.CrossFade(animName, 0f);
         attackFinished = false;
         damageGiven = false;
+        sm.animator.speed = animSpeed;
     }
 
     public override void OnStateExit()
@@ -41,6 +52,7 @@ public class PlayerAttackState_M : BaseState_M
         Debug.Log("Left PlayerAttackState_M");
         currentMovementState = playerSM.playerStateMachine.GetCurrentState();
         playerSM.playerStateMachine.OverrideCurrentState(currentMovementState);
+        sm.animator.speed = 1f;
     }
 
     public override void OnStateUpdate()
@@ -56,11 +68,11 @@ public class PlayerAttackState_M : BaseState_M
         direction.y = 0;
         targetRotation = Quaternion.LookRotation(direction);
         sm.transform.rotation = Quaternion.RotateTowards(sm.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-        weaponHitBox = new Vector3(sm.transform.position.x, sm.transform.position.y + 1f, sm.transform.position.z) + sm.transform.forward * 1.1f;
+        weaponHitBox = new Vector3(sm.transform.position.x, sm.transform.position.y + hitBoxYOffset, sm.transform.position.z) + sm.transform.forward * hitBoxForwardOffset;
         animStateInfo = sm.animator.GetCurrentAnimatorStateInfo(0);
         float normalizedAnimTime = animStateInfo.normalizedTime % 1.0f;
         playerSM.testing_NormalizedAttackAnimTime = normalizedAnimTime;
-        if (normalizedAnimTime >= 0.7f)
+        if (normalizedAnimTime >= animFinishedTime)
         {
             attackFinished = true;
             damageGiven = false;
@@ -71,7 +83,7 @@ public class PlayerAttackState_M : BaseState_M
         }
         if (normalizedAnimTime >= 0.38f && normalizedAnimTime <= 0.46f && !attackFinished && !damageGiven)
         {
-            Collider[] collider = Physics.OverlapSphere(weaponHitBox, 0.4f);
+            Collider[] collider = Physics.OverlapSphere(weaponHitBox, weaponHitBoxSize);
             foreach (var col in collider)
             {
                 if (col.gameObject.CompareTag("Enemy"))
@@ -81,7 +93,7 @@ public class PlayerAttackState_M : BaseState_M
                         continue;
                     targetDamageable.GainDamage(playerSM.attackable.GetAttackDamage());
                     Rigidbody targetRb = col.gameObject.GetComponent<Rigidbody>();
-                    targetRb.AddForce(direction * 7.0f, ForceMode.Impulse);
+                    targetRb.AddForce(direction * targetKnockbackForce, ForceMode.Impulse);
                     damageGiven = true;
                 }
             }
@@ -91,6 +103,6 @@ public class PlayerAttackState_M : BaseState_M
     public override void OnStateGizmos()
     {
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(weaponHitBox, 0.5f);
+        Gizmos.DrawWireSphere(weaponHitBox, weaponHitBoxSize);
     }
 }

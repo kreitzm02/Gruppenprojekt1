@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class MeleeSkeletonBehaviour_M : MonoBehaviour, IDamageable, IKillable, ITargetDetectable, IAttackable
@@ -12,14 +13,31 @@ public class MeleeSkeletonBehaviour_M : MonoBehaviour, IDamageable, IKillable, I
     public float viewDistance = 10;
     public float attackRange = 1;
     public float viewConeAngle = 80;
+    public string targetName = "Player";
     private HealthBar healthBar;
+    private int layerMaskExcludeOwn = ~(1 << 7);
+    public bool IsInsideSmoke = false;
+    private int smokeDuration = 7;
+    public bool smokeRegistrated = false;
+
     private void Start()
     {
         healthBar = GetComponentInChildren<HealthBar>();
     }
     private void Update()
     {
-        healthBar.UpdateHealthBar(healthPoints, maxHealthPoints);
+        if (healthBar != null)
+            healthBar.UpdateHealthBar(healthPoints, maxHealthPoints);
+        if (IsInsideSmoke && smokeRegistrated == false)
+        {
+            StartCoroutine("Smoke");
+            smokeRegistrated=true;
+        }
+    }
+    private System.Collections.IEnumerator Smoke()
+    {
+        yield return new WaitForSeconds(smokeDuration);
+        IsInsideSmoke = false;
     }
     public bool CheckDeathCondition()
     {
@@ -50,7 +68,7 @@ public class MeleeSkeletonBehaviour_M : MonoBehaviour, IDamageable, IKillable, I
                 continue;
             }
             Debug.Log("Target is in view cone");
-            RaycastHit[] rayCastHits = Physics.RaycastAll(transform.position, directionToTarget, Vector3.Distance(transform.position, target.position));
+            RaycastHit[] rayCastHits = Physics.RaycastAll(transform.position, directionToTarget, Vector3.Distance(transform.position, target.position), layerMaskExcludeOwn);
             if (rayCastHits.Length > 1)
             {
                 continue;
@@ -58,8 +76,22 @@ public class MeleeSkeletonBehaviour_M : MonoBehaviour, IDamageable, IKillable, I
             Debug.Log("Target is in line of sight!");
             return target;
         }
-        collider = Physics.OverlapSphere(transform.position, attackRange);
-        foreach (Collider col in collider)
+       //Collider[] nearCollider = Physics.OverlapSphere(transform.position, attackRange);
+       //foreach (Collider col in nearCollider)
+       //{
+       //    if (!col.CompareTag("Player") || col == this.GetComponent<Collider>())
+       //    {
+       //        continue;
+       //    }
+       //    targetedEnemy = col.transform;
+       //    return col.transform;
+       //}
+        return null;
+    }
+    public Transform DetectTargetNearRange()
+    {
+        Collider[] nearCollider = Physics.OverlapSphere(transform.position, attackRange);
+        foreach (Collider col in nearCollider)
         {
             if (!col.CompareTag("Player") || col == this.GetComponent<Collider>())
             {
@@ -70,7 +102,6 @@ public class MeleeSkeletonBehaviour_M : MonoBehaviour, IDamageable, IKillable, I
         }
         return null;
     }
-
     public Transform DetectTargetAttackRange()
     {
         Collider[] collider = Physics.OverlapSphere(transform.position, attackRange);

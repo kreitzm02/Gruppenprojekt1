@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -17,6 +17,7 @@ public class DungeonGenerator_M : MonoBehaviour
     [SerializeField, Range(1, 16)] private int unitSize;
     [SerializeField] private GameObject voidObject;
     [SerializeField] private GameObject player;
+    [SerializeField] private GameObject enemy;
     [Header("Room Settings")]
     [SerializeField, Range(1, 75)] private int roomAmount;
     [SerializeField, Range(2, 7)] private int minRoomSize;
@@ -34,8 +35,9 @@ public class DungeonGenerator_M : MonoBehaviour
     [SerializeField, Range(0 ,25)] private float decAngleOffset;
     [SerializeField, Range(0, 1)] private float decPosOffset;
     [SerializeField] private List<GameObject> decorationObjects;
+    [SerializeField] private GameObject torch;
+    [SerializeField, Range(0, 100)] private int torchSpawnChance = 1; // in Prozent
 
-    // Neue Felder für Start-/End-Raum Berechnung
     private Dictionary<Vector2Int, List<Vector2Int>> adjacencyList;
     private List<(Vector2Int, Vector2Int)> mst = new List<(Vector2Int, Vector2Int)>();
 
@@ -47,16 +49,18 @@ public class DungeonGenerator_M : MonoBehaviour
     {
         GenerateRooms();
         ConnectRooms();
-
-        // MST ist nun berechnet. Wir ermitteln die zwei am weitesten entfernten Räume im MST.
-        BuildAdjacencyList();     // Baut den Graphen auf Basis des MST
-        DetermineDungeonDiameter(); // Ermittelt startPoint und endPoint
-
+        //
+        //// MST calculated. now reaching out for the two furthest rooms from each other
+        BuildAdjacencyList();     // builds the graph on base of mst
+        DetermineDungeonDiameter(); // getting startPoint and endPoint
+        //
         BuildFloor();
         BuildWalls();
         BuildDoors();
         BuildDecoration();
-        //PlacePlayer();
+        PlacePlayer();
+        PlaceEnemies();
+        BuildTorches();
         //PrintDungeonDebug();
         foreach (var room in roomCenters)
         {
@@ -153,7 +157,7 @@ public class DungeonGenerator_M : MonoBehaviour
             }
         }
 
-        // Gänge generieren
+        // GÃ¤nge generieren
         foreach (var corridor in mst)
         {
             CreateCorridor(corridor.Item1, corridor.Item2);
@@ -177,7 +181,7 @@ public class DungeonGenerator_M : MonoBehaviour
 
     private void DetermineDungeonDiameter()
     {
-        // BFS von einem beliebigen Knoten (Raum) - z.B. den ersten Raum:
+        // BFS von einem beliebigen Knoten (Raum)
         Vector2Int arbitraryNode = roomCenters[0];
         Vector2Int nodeA = BFSFindFarthestNode(arbitraryNode);
 
@@ -270,7 +274,7 @@ public class DungeonGenerator_M : MonoBehaviour
                         // walls
                         if (dungeonGrid[i + 1, j] != 1)
                         {
-                            if (random != 10 && random != 6) // 6 and 10 will be walls that can´t have additional decorations on it.
+                            if (random != 10 && random != 6) // 6 and 10 will be walls that canÂ´t have additional decorations on it.
                                 dungeonGrid[i + 1, j] = 2;
                             else
                                 dungeonGrid[i + 1, j] = 9;
@@ -548,5 +552,109 @@ public class DungeonGenerator_M : MonoBehaviour
     private void PlacePlayer()
     {
         player.transform.position = new Vector3(startPoint.x * unitSize, 0, startPoint.y * unitSize);
+    }
+
+    private void PlaceEnemies()
+    {
+        foreach (var center in roomCenters)
+        {
+            int numEnemies = Random.Range(1, 4);
+
+            for (int i = 0; i < numEnemies; i++)
+            {
+                float offsetX = Random.Range(-1.5f, 1.5f);
+                float offsetZ = Random.Range(-1.5f, 1.5f);
+
+                Vector3 spawnPosition = new Vector3(
+                    (center.x + offsetX) * unitSize,
+                    0,
+                    (center.y + offsetZ) * unitSize
+                );
+
+                Instantiate(enemy, spawnPosition, Quaternion.identity);
+            }
+        }
+    }
+
+    private void BuildTorches()
+    {
+        
+        int avgRoomSize = (minRoomSize + maxRoomSize) / 2;
+
+        for (int i = 0; i < roomCenters.Count; i++)
+        {
+            int roomStartX = roomCenters[i].x - (avgRoomSize / 2);
+            int roomStartY = roomCenters[i].y - (avgRoomSize / 2);
+
+            for (int j = roomStartX - 1; j < roomStartX + avgRoomSize + 2; j++)
+            {
+                for (int k = roomStartY - 1; k < roomStartY + avgRoomSize + 2; k++)
+                {
+                    
+                    if (j < 0 || j >= dungeonGrid.GetLength(0) ||
+                        k < 0 || k >= dungeonGrid.GetLength(1))
+                        continue;
+
+                    if (dungeonGrid[j, k] == 2)
+                    {
+                        if (j - 3 >= 0 &&
+                            dungeonGrid[j - 3, k] == 3 &&  
+                            dungeonGrid[j - 2, k] == 2 &&  
+                            dungeonGrid[j - 1, k] == 2)    
+                        {
+                            PlaceTorchAt(j, k);
+                        }
+                        if (j + 3 < dungeonGrid.GetLength(0) &&
+                            dungeonGrid[j + 3, k] == 3 &&  
+                            dungeonGrid[j + 2, k] == 2 &&  
+                            dungeonGrid[j + 1, k] == 2)    
+                        {
+                            PlaceTorchAt(j, k);
+                        }
+                        if (k - 3 >= 0 &&
+                            dungeonGrid[j, k - 3] == 3 &&  
+                            dungeonGrid[j, k - 2] == 2 &&  
+                            dungeonGrid[j, k - 1] == 2)    
+                        {
+                            PlaceTorchAt(j, k);
+                        }
+                        if (k + 3 < dungeonGrid.GetLength(1) &&
+                            dungeonGrid[j, k + 3] == 3 &&  
+                            dungeonGrid[j, k + 2] == 2 &&  
+                            dungeonGrid[j, k + 1] == 2)    
+                        {
+                            PlaceTorchAt(j, k);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void PlaceTorchAt(int x, int y)
+    {
+        Vector3 pos = new Vector3(x * unitSize, 1.5f, y * unitSize);
+        Quaternion rot = Quaternion.identity;
+        if (y - 1 >= 0 && dungeonGrid[x, y - 1] == 1)
+        {
+            pos.z -= 0.45f * unitSize;
+            rot = Quaternion.Euler(0, 180f, 0);
+        }
+        else if (y + 1 < dungeonGrid.GetLength(1) && dungeonGrid[x, y + 1] == 1)
+        {
+            pos.z += 0.45f * unitSize;
+            rot = Quaternion.Euler(0, 0f, 0);
+        }
+        else if (x + 1 < dungeonGrid.GetLength(0) && dungeonGrid[x + 1, y] == 1)
+        {
+            pos.x += 0.45f * unitSize;
+            rot = Quaternion.Euler(0, 90f, 0);
+        }
+        else if (x - 1 >= 0 && dungeonGrid[x - 1, y] == 1)
+        {
+            pos.x -= 0.45f * unitSize;
+            rot = Quaternion.Euler(0, -90f, 0);
+        }
+        Instantiate(torch, pos, rot);
     }
 }

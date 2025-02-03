@@ -6,4 +6,6 @@ public interface ITargetDetectable
 {
     public Transform DetectTargetVisibleRange();
     public Transform DetectTargetAttackRange();
+
+    public Transform DetectTargetNearRange();
 }

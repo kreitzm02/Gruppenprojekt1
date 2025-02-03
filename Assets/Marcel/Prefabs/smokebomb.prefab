@@ -132,3 +132,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smokeEffectPrefab: {fileID: 8149101946197106596, guid: a8e8424dd07d7414eba674a57b0c753b, type: 3}
+  fakeCollisionPrefab: {fileID: 6766328463396322945, guid: b6a95611d4b34254b8e2789c86382849, type: 3}
