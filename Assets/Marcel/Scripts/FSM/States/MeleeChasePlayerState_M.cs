@@ -1,17 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MeleeChasePlayerState_M : BaseState_M
 {
-    // CHASE TARGET STATE
-    //
-    // Intented behaviour: Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
-    //                     invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-    // Intended condition: Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
-    //                     invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-    //
-
     string animName;
     private Transform targetedEnemy;
     public bool hasTargetEnemy;

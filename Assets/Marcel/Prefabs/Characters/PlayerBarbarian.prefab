@@ -10,15 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 7fbd215d51e35f7419a1652a14a1dbd4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -28.39
+      value: 440
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7fbd215d51e35f7419a1652a14a1dbd4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7fbd215d51e35f7419a1652a14a1dbd4, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -13.24
+      value: 396
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7fbd215d51e35f7419a1652a14a1dbd4, type: 3}
       propertyPath: m_LocalRotation.w
@@ -50,7 +50,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 7fbd215d51e35f7419a1652a14a1dbd4, type: 3}
       propertyPath: m_Name
-      value: Barbarian
+      value: PlayerBarbarian
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 7fbd215d51e35f7419a1652a14a1dbd4, type: 3}
       propertyPath: m_TagString
@@ -168,7 +168,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthPoints: 100
-  attackDamage: 30
+  unarmedAtkDamage: 8
+  maxHealthPoints: 100
 --- !u!114 &3883058377354110016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,3 +183,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+  playerBehaviour: {fileID: 0}
+  fakeThrowObject: {fileID: 0}
+  realThrowObject: {fileID: 0}
+  handSlot: {fileID: 0}
+  testing_NormalizedAttackAnimTime: 0

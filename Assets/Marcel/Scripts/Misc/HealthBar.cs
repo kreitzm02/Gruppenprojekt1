@@ -20,8 +20,11 @@ public class HealthBar : MonoBehaviour
         if (!isPlayerHealthBar)
         {
             cam = Camera.main;
-            slider.transform.rotation = cam.transform.rotation;
-            slider.transform.position = target.position + offset;
+            if(cam != null)
+            {
+                slider.transform.rotation = cam.transform.rotation;
+                slider.transform.position = target.position + offset;
+            }
         }
     }
 

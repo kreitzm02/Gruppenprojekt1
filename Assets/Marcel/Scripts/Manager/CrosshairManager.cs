@@ -57,7 +57,6 @@ public class CrosshairManager : MonoBehaviour
     {
         Ray ray = playerCam.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        bool placedCrosshair = false;
 
         if (Physics.Raycast(ray, out hit, 100, floorLayer))
         {
@@ -75,7 +74,6 @@ public class CrosshairManager : MonoBehaviour
                 crosshairInstance.transform.position = centerOnGround + offset;
                 crosshairInstance.transform.position += Vector3.up * 0.01f;
                 crosshairInstance.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-                placedCrosshair = true;
                 crosshairTransform = crosshairInstance.transform;
             }
         }

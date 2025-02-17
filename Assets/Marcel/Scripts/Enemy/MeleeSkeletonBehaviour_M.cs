@@ -1,5 +1,9 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -8,24 +12,52 @@ public class MeleeSkeletonBehaviour_M : MonoBehaviour, IDamageable, IKillable, I
     public int healthPoints = 100;
     public int maxHealthPoints = 100;
     public int attackDamage = 15;
-    public Transform targetedEnemy;
-    public Transform attackedEnemy;
-    public float viewDistance = 10;
+    [HideInInspector] public Transform targetedEnemy;
+    [HideInInspector] public Transform attackedEnemy;
+    public float viewDistance = 15;
     public float attackRange = 1;
-    public float viewConeAngle = 80;
+    public float nearRange = 8;
+    public float viewConeAngle = 180;
     public string targetName = "Player";
     private HealthBar healthBar;
     private int layerMaskExcludeOwn = ~(1 << 7);
     public bool IsInsideSmoke = false;
     private int smokeDuration = 7;
     public bool smokeRegistrated = false;
+    public float deathPosY = -10;
+    public bool registeredDeath = false;
+
+    private OperationType operationType = OperationType.Single;
+
+    EnemyDetectionManager enemyDetectionManager;
+
+    private int myIndex = -1;
 
     private void Start()
     {
         healthBar = GetComponentInChildren<HealthBar>();
+        enemyDetectionManager = EnemyDetectionManager.Instance;
+        if (enemyDetectionManager != null)
+        {
+            enemyDetectionManager.RegisterEnemy(gameObject);
+            myIndex = enemyDetectionManager.Enemies.IndexOf(gameObject);
+        }
     }
+
+    private void OnDestroy()
+    {
+        if (enemyDetectionManager != null && operationType == OperationType.Multi)
+            enemyDetectionManager.UnregisterEnemy(gameObject);
+    }
+
     private void Update()
     {
+        if (healthPoints == 0 && registeredDeath == false)
+        {
+            DungeonLevelManager.Instance.registeredKilledEnemy = true;
+            registeredDeath = true;
+        }
+        operationType = EnemyDetectionToggleForMT.Instance.operationType;
         if (healthBar != null)
             healthBar.UpdateHealthBar(healthPoints, maxHealthPoints);
         if (IsInsideSmoke && smokeRegistrated == false)
@@ -53,43 +85,70 @@ public class MeleeSkeletonBehaviour_M : MonoBehaviour, IDamageable, IKillable, I
     }
     public Transform DetectTargetVisibleRange()
     {
-        Collider[] collider = Physics.OverlapSphere(transform.position, viewDistance);
-        foreach (Collider col in collider)
+        if (operationType == OperationType.Multi)
         {
-            if (!col.CompareTag("Player") || col == this.GetComponent<Collider>())
+            if (enemyDetectionManager == null || myIndex < 0)
+                return null;
+
+            GameObject[] detectedObjects = enemyDetectionManager.GetResultsForEnemy(myIndex);
+            foreach (GameObject obj in detectedObjects)
             {
-                continue;
+                if (obj == null) continue;
+                Collider col = obj.GetComponent<Collider>();
+                if (!col.CompareTag("Player") || col == this.GetComponent<Collider>())
+                {
+                    continue;
+                }
+                Transform target = col.transform;
+                Vector3 directionToTarget = (target.position - transform.position).normalized;
+                float angleToTarget = Vector3.Angle(transform.forward, directionToTarget);
+                if (angleToTarget > viewConeAngle / 2)
+                {
+                    continue;
+                }
+                Debug.Log("Target is in view cone");
+                RaycastHit[] rayCastHits = Physics.RaycastAll(transform.position, directionToTarget, Vector3.Distance(transform.position, target.position), layerMaskExcludeOwn);
+                if (rayCastHits.Length > 1)
+                {
+                    continue;
+                }
+                Debug.Log("Target is in line of sight!");
+                return target;
             }
-            Transform target = col.transform;
-            Vector3 directionToTarget = (target.position - transform.position).normalized;
-            float angleToTarget = Vector3.Angle(transform.forward, directionToTarget);
-            if (angleToTarget > viewConeAngle / 2)
-            {
-                continue;
-            }
-            Debug.Log("Target is in view cone");
-            RaycastHit[] rayCastHits = Physics.RaycastAll(transform.position, directionToTarget, Vector3.Distance(transform.position, target.position), layerMaskExcludeOwn);
-            if (rayCastHits.Length > 1)
-            {
-                continue;
-            }
-            Debug.Log("Target is in line of sight!");
-            return target;
+            return null;
         }
-       //Collider[] nearCollider = Physics.OverlapSphere(transform.position, attackRange);
-       //foreach (Collider col in nearCollider)
-       //{
-       //    if (!col.CompareTag("Player") || col == this.GetComponent<Collider>())
-       //    {
-       //        continue;
-       //    }
-       //    targetedEnemy = col.transform;
-       //    return col.transform;
-       //}
-        return null;
+        else if (operationType == OperationType.Single)
+        {
+            Collider[] collider = Physics.OverlapSphere(transform.position, viewDistance);
+            foreach (Collider col in collider)
+            {
+                if (!col.CompareTag("Player") || col == this.GetComponent<Collider>())
+                {
+                    continue;
+                }
+                Transform target = col.transform;
+                Vector3 directionToTarget = (target.position - transform.position).normalized;
+                float angleToTarget = Vector3.Angle(transform.forward, directionToTarget);
+                if (angleToTarget > viewConeAngle / 2)
+                {
+                    continue;
+                }
+                Debug.Log("Target is in view cone");
+                RaycastHit[] rayCastHits = Physics.RaycastAll(transform.position, directionToTarget, Vector3.Distance(transform.position, target.position), layerMaskExcludeOwn);
+                if (rayCastHits.Length > 1)
+                {
+                    continue;
+                }
+                Debug.Log("Target is in line of sight!");
+                return target;
+            }
+            return null;
+        }
+        else return null;
     }
     public Transform DetectTargetNearRange()
     {
+        
         Collider[] nearCollider = Physics.OverlapSphere(transform.position, attackRange);
         foreach (Collider col in nearCollider)
         {

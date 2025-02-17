@@ -12,6 +12,7 @@ public class WeaponNpcBehaviour : MonoBehaviour
     private GameObject newWeapon;
     private bool hasInteracted;
     private Transform playerTransform;
+    private bool unregisterPossible = false;
     [SerializeField] private List<GameObject> weapons = new List<GameObject>();
     // Start is called before the first frame update
     void Start()
@@ -31,10 +32,16 @@ public class WeaponNpcBehaviour : MonoBehaviour
             if (col.gameObject.CompareTag("Player"))
             {
                 interactionPossible = true;
+                unregisterPossible = true;
+                PlayerUI.Instance.RegisterInteractable();
                 playerTransform = col.gameObject.transform;
                 break;
             }
-            else interactionPossible = false;
+            else
+            {
+                interactionPossible = false;
+                if (unregisterPossible) PlayerUI.Instance.UnregisterInteractable();
+            }
         }
         if (interactionPossible)
         {

@@ -6,6 +6,7 @@ using System;
 using UnityEngine.UIElements;
 using Unity.IO.LowLevel.Unsafe;
 using UnityEngine.Rendering;
+using System.Threading.Tasks;
 
 public class MeleeStateMachine_M : BaseStateMachine_M
 {
@@ -123,10 +124,10 @@ public class MeleeStateMachine_M : BaseStateMachine_M
         {
             targetedEnemy = targetDetectable.DetectTargetNearRange();
         }
-        //targetedEnemy = targetDetectable.DetectTargetVisibleRange();
         attackedEnemy = targetDetectable.DetectTargetAttackRange();
         base.Update();
         previousHealthPoints = skeletonBehaviour.healthPoints;
     }
+
 }
 
